@@ -1,0 +1,64 @@
+import random
+import matplotlib.pyplot as plt
+
+N = 20
+target = (random.randint(0, N-1), random.randint(0, N-1))
+drones = [(0, 0), (N-1, 0), (0, N-1)]
+
+
+paths = [[drones[i]] for i in range(len(drones))]
+visited = set(drones)
+colors = ['blue', 'green', 'orange']
+
+plt.ion()
+fig, ax = plt.subplots()
+found = False
+
+for t in range(300): 
+    ax.clear()
+
+    for i in range(len(drones)):
+        x, y = drones[i]
+
+        candidates = []
+        for dx in [-2, -1, 0, 1, 2]:
+            for dy in [-2, -1, 0, 1, 2]:
+                if dx == 0 and dy == 0:
+                    continue
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < N and 0 <= ny < N and (nx, ny) not in visited:
+                    candidates.append((nx, ny))
+
+        if candidates:
+            new_pos = random.choice(candidates)
+        else:
+            new_pos = (x, y) 
+
+    
+        drones[i] = new_pos
+        paths[i].append(new_pos)
+        visited.add(new_pos)
+
+        xs, ys = zip(*paths[i])
+        ax.plot(xs, ys, '-', color=colors[i], alpha=0.6, label=f'Drone {i+1}' if t == 0 else "")
+        ax.plot(new_pos[0], new_pos[1], 'o', color=colors[i])
+
+
+    ax.plot(target[0], target[1], 'rx', markersize=10, label='Target')
+
+    ax.set_xlim(-1, N)
+    ax.set_ylim(-1, N)
+    ax.set_title(f"Step: {t}")
+    ax.legend(loc='upper right')
+    plt.pause(0.1)
+
+    if target in drones:
+        print(f" 구조 완료! ({t}초 만에 발견)")
+        found = True
+        break
+
+if not found:
+    print(" 300번 탐색했지만 구조 대상을 찾지 못했습니다.")
+
+plt.ioff()
+plt.show()
